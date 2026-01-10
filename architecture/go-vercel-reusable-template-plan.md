@@ -14,7 +14,7 @@ cache/                 # Redis client init
 db/                    # SQLX Postgres init + FX lifecycle hooks
 lib/                   # Core app modules, routes, services, pkg integrations
 http/                  # Local HTTP client test files (not runtime)
-docs/                  # Architecture + plans
+architecture/          # Architecture + plans
 vercel.json            # Vercel function config + rewrites
 sqlc.yaml              # sqlc codegen configuration (queries + schema -> Go)
 ```
@@ -118,34 +118,27 @@ Non-goals:
 │       └── fx/
 │           └── options.go
 ├── vercel.json
-├── sqlc.yaml
-├── supabase/
-│   └── schema.sql              # sqlc schema source (Supabase convention)
-├── go.mod
-├── go.sum
-├── Makefile
-└── README.md
 ```
 
-## 4) Extraction Plan (Step-by-step)
+## 4) Template Build Plan (Extraction Rules)
 
-### Step 1 — Inventory + classify
+### Step 1 — Identify what’s boilerplate vs. product-specific
 
-- Inventory reusable pieces:
-  - Vercel handler pattern: `api/*/core.go`
-  - FX modules: `lib/app/fx/core.go`, `lib/router/fx/options.go`
-  - Router + handler interface: `lib/router/core.go`
-  - Config + Viper defaults: `config/config.go`
-  - DB + Redis setup: `db/db.go`, `cache/redis.go`
-  - DB helpers: `db/tx.go` (SQLX transaction helper)
-  - Logger: `lib/logs/*`
-  - sqlc: `sqlc.yaml`, `db/query/*` and the generated output package
-  - Inngest wrapper: `lib/pkg/inngestclient/core.go` (this repo currently uses `lib/pkg/pd_inngest/core.go`, but the template should use a neutral name)
-  - Default response helpers: `lib/pkg/render/*`
-  - Cross-domain interfaces: `lib/interfaces/*`
-- Classify business logic vs boilerplate (keep only boilerplate in template).
+Boilerplate:
+- Vercel entrypoints (the `api/<domain>/core.go` pattern)
+- FX wiring (CoreApp + CoreRouter options)
+- Router + handler registration patterns
+- Infra (config/db/cache/logging)
+- Standard JSON responses
+- Minimal example handler + route
+- `vercel.json` rewrites convention
 
-### Step 2 — Build a minimal skeleton
+Product-specific:
+- Any domain handlers tied to business logic
+- Product-specific config defaults and helper packages
+- Anything that can’t compile/run without secrets or vendor-specific services
+
+### Step 2 — Trim to the minimal reusable template
 
 - Keep only a minimal example domain (`health`) with a simple route.
 - Keep the Inngest entrypoint optional (include with minimal setup, and document how to remove it if unused).
@@ -398,5 +391,8 @@ Recommended `AGENTS.md` contents (template-quality, keep it short and strict):
 When asked to “expose an existing package as a service”:
 - Prefer minimal changes to the existing package; wrap it with constructors and FX providers.
 - Create the minimal Vercel entrypoint + one example route (plus health if missing).
+---
+- Create the minimal Vercel entrypoint + one example route (plus health if missing).
 - Update `vercel.json` rewrites and add a short README snippet with run steps.
 ```
+

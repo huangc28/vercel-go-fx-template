@@ -42,3 +42,4 @@ When asked to “expose an existing package as a service”:
 - Prefer minimal changes to the existing package; wrap it with constructors and FX providers.
 - Create the minimal Vercel entrypoint + one example route (plus health if missing).
 - Update `vercel.json` rewrites and add a short README snippet with run steps.
+
