@@ -11,7 +11,9 @@ import (
 	"time"
 )
 
-//go:embed assets/**
+//go:embed assets/AGENTS.md
+//go:embed assets/architecture/go-vercel-reusable-template-plan.md
+//go:embed assets/codex/skills/adopt/SKILL.md
 var assets embed.FS
 
 type options struct {

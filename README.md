@@ -29,16 +29,6 @@ This writes:
 
 To enable `/adopt` in Codex, install the skill to your Codex home (commonly `~/.codex/skills/adopt`).
 
-## Hard-init an existing repo (overwrite)
-
-If you want to adopt this structure in an existing project with one command (and you’re OK overwriting the repo layout), run this from the template repo:
-
-```bash
-./scripts/hard-init.sh /path/to/existing-repo --module github.com/<org>/<existing-repo>
-```
-
-This moves the existing repo contents (except `.git/`) into a timestamped backup directory and then copies this template in. Migrate code from the backup into `lib/app/<domain>/...`.
-
 ## Run locally
 
 ```bash
