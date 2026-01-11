@@ -7,7 +7,7 @@ import (
 	"github.com/inngest/inngestgo"
 	"go.uber.org/zap"
 
-	"github.com/example/vercel-go-service-template/config"
+	"github.com/huangc28/vercel-go-fx-template/config"
 )
 
 // NewInngestClient creates an Inngest Go SDK client.

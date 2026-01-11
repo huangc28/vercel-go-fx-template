@@ -3,7 +3,7 @@ package fx
 import (
 	"go.uber.org/fx"
 
-	"github.com/example/vercel-go-service-template/lib/router"
+	"github.com/huangc28/vercel-go-fx-template/lib/router"
 )
 
 var CoreRouterOptions = fx.Options(

@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/example/vercel-go-service-template/lib/pkg/render"
+	"github.com/huangc28/vercel-go-fx-template/lib/pkg/render"
 )
 
 type Handler struct{}

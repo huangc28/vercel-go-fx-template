@@ -4,7 +4,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/example/vercel-go-service-template/config"
+	"github.com/huangc28/vercel-go-fx-template/config"
 )
 
 func NewLogger(cfg config.Config) (*zap.Logger, error) {

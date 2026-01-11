@@ -7,10 +7,10 @@ import (
 
 	"go.uber.org/fx"
 
-	appfx "github.com/example/vercel-go-service-template/lib/app/fx"
-	healthapp "github.com/example/vercel-go-service-template/lib/app/health"
-	"github.com/example/vercel-go-service-template/lib/router"
-	routerfx "github.com/example/vercel-go-service-template/lib/router/fx"
+	appfx "github.com/huangc28/vercel-go-fx-template/lib/app/fx"
+	healthapp "github.com/huangc28/vercel-go-fx-template/lib/app/health"
+	"github.com/huangc28/vercel-go-fx-template/lib/router"
+	routerfx "github.com/huangc28/vercel-go-fx-template/lib/router/fx"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {

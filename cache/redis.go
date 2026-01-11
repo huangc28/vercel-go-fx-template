@@ -8,7 +8,7 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
-	"github.com/example/vercel-go-service-template/config"
+	"github.com/huangc28/vercel-go-fx-template/config"
 )
 
 func NewRedis(lc fx.Lifecycle, cfg config.Config, logger *zap.Logger) (*redis.Client, error) {

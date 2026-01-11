@@ -8,9 +8,9 @@ import (
 	"github.com/inngest/inngestgo"
 	"go.uber.org/fx"
 
-	appfx "github.com/example/vercel-go-service-template/lib/app/fx"
-	"github.com/example/vercel-go-service-template/lib/pkg/inngestclient"
-	"github.com/example/vercel-go-service-template/lib/pkg/render"
+	appfx "github.com/huangc28/vercel-go-fx-template/lib/app/fx"
+	"github.com/huangc28/vercel-go-fx-template/lib/pkg/inngestclient"
+	"github.com/huangc28/vercel-go-fx-template/lib/pkg/render"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
