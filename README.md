@@ -19,7 +19,7 @@ cd <new-service>
 To add the guidance files into an existing repo (without overwriting its layout), run the adopter CLI from inside that repo:
 
 ```bash
-go run github.com/<org>/vercel-go-fx-template/cmd/adopt@latest --dir .
+GOPROXY=direct go run github.com/huangc28/vercel-go-fx-template/cmd/adopt@main --dir .
 ```
 
 This writes:
