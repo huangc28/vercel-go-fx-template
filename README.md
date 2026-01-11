@@ -10,7 +10,7 @@ Conservative template for Go services deployed to Vercel serverless functions:
 
 ```bash
 go install golang.org/x/tools/cmd/gonew@latest
-gonew github.com/<org>/vercel-go-service-template github.com/<org>/<new-service>
+gonew github.com/huangc28/vercel-go-fx-template github.com/<org>/<new-service>
 cd <new-service>
 ```
 
