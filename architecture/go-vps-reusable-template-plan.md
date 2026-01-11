@@ -65,6 +65,9 @@ Non-goals:
 ```
 .
 ├── cmd/
+│   ├── adopt/                    # optional: add Codex context to an existing repo
+│   │   ├── main.go               # writes AGENTS + architecture plan + Codex skill
+│   │   └── assets/               # embedded files for non-destructive adoption
 │   └── server/
 │       └── main.go                 # process entrypoint (long-lived)
 ├── config/
@@ -230,6 +233,7 @@ To make it easy for a developer (or an AI agent) to implement and use the boiler
 - The project must start with **zero required env vars** (sensible defaults).
 - Postgres/Redis must be **optional** and disabled when `PG_URL` / `REDIS_URL` are empty.
 - Provide an `.env.example` and document the exact minimal commands to run locally.
+- Include a small, non-destructive “adopter” CLI (`cmd/adopt`) so an existing repo can add Codex guidance without reorganizing code.
 
 Recommended “first run” workflow:
 
@@ -292,3 +296,71 @@ Optional integrations:
 - Postgres: `PG_URL`
 - Redis: `REDIS_URL`
 - Inngest (for real use): `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` (and optional `INNGEST_SIGNING_KEY_FALLBACK`), plus `INNGEST_APP_ID` (optional/labeling)
+
+## 13) Implement Using `gonew` (Adopt / Instantiate)
+
+To match the Vercel template’s onboarding ergonomics, the VPS template should also support a “one command” instantiation flow using `gonew`.
+
+### 13.1 Create and publish the template as a Go module
+
+1) Create a new repo for the VPS template (example name: `go-vps-fx-template`).
+2) Ensure `go.mod` module path matches the repo (example: `module github.com/<org>/go-vps-fx-template`).
+3) Push a tag (`v0.x.y`) so `gonew` can fetch a stable version.
+
+### 13.2 Install `gonew`
+
+```bash
+go install golang.org/x/tools/cmd/gonew@latest
+```
+
+### 13.3 Instantiate a new service
+
+```bash
+gonew github.com/<org>/go-vps-fx-template github.com/<org>/<service>
+```
+
+This produces a new folder (named after the destination module by default) with:
+- `cmd/server/main.go` as the long-lived entrypoint
+- `internal/` packages wired via FX + Chi
+- `Makefile`, `Dockerfile`, and `docker-compose.prod.yaml`
+
+### 13.4 Adopt into an existing repo (non-destructive)
+
+If you only want to add Codex/agent guidance files (no code changes), include the same “adopter” CLI pattern as the Vercel template and run it from inside the target repo:
+
+```bash
+go run github.com/<org>/go-vps-fx-template/cmd/adopt@latest --dir .
+```
+
+This should write (without touching runtime code):
+- `AGENTS.md`
+- `architecture/go-vps-reusable-template-plan.md`
+- `codex/skills/adopt/SKILL.md`
+
+To enable `/adopt` in Codex, install the skill to your Codex home (commonly `~/.codex/skills/adopt`).
+
+Recommended workflow (keeps history and avoids risky in-place rewrites):
+
+1) Instantiate into a sibling directory via `gonew` (as above).
+2) Copy your existing domain code into `internal/app/<domain>/...` (or wrap it there).
+3) Expose your domain(s) via `internal/app/<domain>/fx.Module` and register HTTP handlers via `router.AsRoute(...)`.
+4) Add those domain modules to `cmd/server/main.go`.
+
+This mirrors the Vercel template’s domain/module pattern, but the app boots once at process start instead of per request.
+
+### 13.5 After `gonew` (manual edits you still do)
+
+- Update `README.md` service name, ports, and deploy notes.
+- Set image naming defaults in `docker-compose.prod.yaml` (e.g. `IMAGE`, `TAG`) for your registry.
+- Confirm optional infra behavior:
+  - If `PG_URL` is empty, DB wiring should no-op or return a clear disabled error at call sites (but must not block startup).
+  - If `REDIS_URL` is empty, Redis wiring should be disabled (but must not block startup).
+- If you enable Inngest, confirm missing keys gate requests with `501/503` rather than failing startup.
+
+### 13.6 Private template notes (if applicable)
+
+If the template repo is private, ensure the developer has Git credentials configured so `gonew` can fetch it, and prefer pinning to a tagged version for repeatability:
+
+```bash
+gonew github.com/<org>/go-vps-fx-template@v0.1.0 github.com/<org>/<service>
+```
