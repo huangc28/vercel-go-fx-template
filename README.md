@@ -35,6 +35,8 @@ To enable `/adopt` in Codex, install the skill to your Codex home (commonly `~/.
 make start/vercel APP_PORT=3010
 ```
 
+Requires Vercel CLI auth (`vercel login`) and a linked project (`vercel link`).
+
 Then:
 - `GET /health`
 
