@@ -1,28 +1,41 @@
 package inngestclient
 
 import (
-	"net/http"
+	"context"
+	"log/slog"
 
+	"github.com/inngest/inngestgo"
 	"go.uber.org/zap"
 
 	"github.com/example/vercel-go-service-template/config"
-	"github.com/example/vercel-go-service-template/lib/pkg/render"
 )
 
-// NewHTTPHandler is a minimal placeholder Inngest endpoint.
+// NewInngestClient creates an Inngest Go SDK client.
 //
-// Replace this with the official Inngest Go SDK integration if you want
-// automatic function registration and event processing.
-func NewHTTPHandler(cfg config.Config, logger *zap.Logger) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("inngest endpoint called")
-		render.ChiJSON(w, r, http.StatusOK, map[string]any{
-			"ok":        true,
-			"app_id":    cfg.InngestID,
-			"note":      "replace lib/pkg/inngestclient with official SDK integration",
-			"path":      r.URL.Path,
-			"method":    r.Method,
-			"userAgent": r.UserAgent(),
-		})
+// Note: Event/signing keys are read from environment variables by default:
+// - INNGEST_EVENT_KEY
+// - INNGEST_SIGNING_KEY
+// - INNGEST_SIGNING_KEY_FALLBACK (optional)
+func NewInngestClient(cfg config.Config) (inngestgo.Client, error) {
+	return inngestgo.NewClient(inngestgo.ClientOpts{
+		AppID:  cfg.InngestID,
+		Logger: slog.Default(),
 	})
+}
+
+// RegisterExampleCron registers a minimal example Inngest function.
+func RegisterExampleCron(cli inngestgo.Client, logger *zap.Logger) error {
+	_, err := inngestgo.CreateFunction(
+		cli,
+		inngestgo.FunctionOpts{
+			ID:   "example-cron",
+			Name: "Example Cron",
+		},
+		inngestgo.CronTrigger("0 * * * *"),
+		func(ctx context.Context, _ inngestgo.Input[any]) (any, error) {
+			logger.Info("running example cron")
+			return map[string]any{"ok": true}, nil
+		},
+	)
+	return err
 }

@@ -5,32 +5,32 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/inngest/inngestgo"
 	"go.uber.org/fx"
 
 	appfx "github.com/example/vercel-go-service-template/lib/app/fx"
 	"github.com/example/vercel-go-service-template/lib/pkg/inngestclient"
+	"github.com/example/vercel-go-service-template/lib/pkg/render"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	var handler http.Handler
-
 	app := fx.New(
 		appfx.CoreAppOptions,
-		fx.Provide(inngestclient.NewHTTPHandler),
-		fx.Populate(&handler),
+		fx.Provide(inngestclient.NewInngestClient),
+		fx.Invoke(inngestclient.RegisterExampleCron),
+		fx.Invoke(func(cli inngestgo.Client) {
+			cli.Serve().ServeHTTP(w, r)
+		}),
 	)
 
-	startCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := app.Start(startCtx); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := app.Start(r.Context()); err != nil {
+		render.ChiErr(w, r, http.StatusInternalServerError, err)
 		return
 	}
+
 	defer func() {
 		stopCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		_ = app.Stop(stopCtx)
 	}()
-
-	handler.ServeHTTP(w, r)
 }

@@ -23,9 +23,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		fx.Populate(&mux),
 	)
 
-	startCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := app.Start(startCtx); err != nil {
+	if err := app.Start(r.Context()); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

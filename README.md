@@ -4,7 +4,7 @@ Conservative template for Go services deployed to Vercel serverless functions:
 - Per-domain entrypoints: `api/<domain>/core.go`
 - Per-request DI via Uber FX
 - HTTP routing via `chi`
-- Minimal `/health` example and optional `/api/inngest` placeholder
+- Minimal `/health` example and optional `/api/inngest` entrypoint
 
 ## Create a new service (recommended: `gonew`)
 
@@ -56,7 +56,10 @@ Set env vars in Vercel (or locally) to match `config/config.go`:
 - `LOG_LEVEL` (default: `info`)
 - `PG_URL` (optional; if empty Postgres is disabled)
 - `REDIS_URL` (optional; if empty Redis is disabled)
-- `INNGEST_APP_ID` (used by the placeholder handler)
+- `INNGEST_APP_ID` (default: `vercel-go-service`)
+- `INNGEST_EVENT_KEY` (optional; defaults to env lookup in Inngest SDK)
+- `INNGEST_SIGNING_KEY` (optional; defaults to env lookup in Inngest SDK)
+- `INNGEST_SIGNING_KEY_FALLBACK` (optional)
 
 ## sqlc (manual)
 
