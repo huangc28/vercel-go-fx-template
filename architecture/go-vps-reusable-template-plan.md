@@ -222,3 +222,73 @@ The template should compile even if generated code is not present (don’t hard-
 - Production image:
   - `make build/prod`
   - `make start/prod`
+
+## 11) “Low Friction” Dev Experience (Day-1)
+
+To make it easy for a developer (or an AI agent) to implement and use the boilerplate with minimal setup:
+
+- The project must start with **zero required env vars** (sensible defaults).
+- Postgres/Redis must be **optional** and disabled when `PG_URL` / `REDIS_URL` are empty.
+- Provide an `.env.example` and document the exact minimal commands to run locally.
+
+Recommended “first run” workflow:
+
+1) `make start`
+2) `curl http://localhost:${APP_PORT:-8080}/health`
+
+If you include Inngest:
+
+3) Start Inngest dev server pointing at your endpoint (example):
+   - `npx inngest-cli@latest dev -u http://localhost:${APP_PORT:-8080}/api/inngest --no-discovery`
+
+## 12) Implementation Checklist (for an AI agent)
+
+This section is intentionally explicit so an agent can scaffold the repo without guessing.
+
+### 12.1 Minimal code artifacts
+
+- `cmd/server/main.go`
+  - Builds `fx.New(...)` with: core app options, router options, server options, and domain modules (eg `health`, optional `inngest`).
+  - Starts the FX app and blocks on signals (or uses `fx.App.Run()`).
+
+- `internal/server/http.go` + `internal/server/fx/options.go`
+  - Provide `*http.Server` and register `fx.Lifecycle` hooks to listen/shutdown.
+  - Depend on `*chi.Mux` from the router module.
+
+- `internal/router/core.go` + `internal/router/fx/options.go`
+  - Keep `Handler` interface + FX group pattern (mirrors this repo).
+  - Build `*chi.Mux`, attach baseline middleware, then call `RegisterRoute` for each grouped handler.
+
+- `internal/app/health/handler.go` (+ optional `internal/app/health/fx/module.go`)
+  - `GET /health` returning `{ "ok": true }` via `internal/pkg/render`.
+
+- `internal/app/inngest/handler.go` + `internal/app/inngest/fx/module.go` (optional but “prebuilt”)
+  - Mount `POST /api/inngest` (or `/inngest`) and serve via `inngestgo.Client.Serve().ServeHTTP`.
+  - Register at least one example function (cron) so the endpoint demonstrates registration.
+  - Gate behavior when keys are missing (respond `501`/`503`), but do not prevent the app from starting.
+
+### 12.2 Minimal non-code artifacts
+
+- `Makefile`
+  - `start`: `go run ./cmd/server`
+  - `build/prod`, `start/prod`, `push/prod` using `docker-compose.prod.yaml`
+
+- `Dockerfile`
+  - Multi-stage build (builder -> runtime) producing a single server binary.
+
+- `docker-compose.prod.yaml`
+  - A service for the app image with env var passthrough.
+  - Image name/tag driven by env vars (eg `IMAGE`, `TAG`) to reduce CI friction.
+
+- `README.md`
+  - Exact “run locally” steps and required env vars (none required; list optional ones).
+
+### 12.3 Minimal env vars to “spin it up”
+
+None required (use defaults). The only commonly-set variable for local dev should be:
+- `APP_PORT` (optional)
+
+Optional integrations:
+- Postgres: `PG_URL`
+- Redis: `REDIS_URL`
+- Inngest (for real use): `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` (and optional `INNGEST_SIGNING_KEY_FALLBACK`), plus `INNGEST_APP_ID` (optional/labeling)
