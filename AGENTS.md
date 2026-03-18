@@ -1,6 +1,6 @@
 # AGENTS.md (Codex)
 
-Read `architecture/go-vercel-reusable-template-plan.md` before making structural changes or doing an adoption/migration.
+This repository is the canonical source for the minimal Vercel Go + FX + chi scaffold.
 
 ## Architecture (hard rules)
 - This repo uses Uber FX for dependency injection. No global singletons for DB/Redis/Config/Logger.
@@ -25,20 +25,11 @@ Read `architecture/go-vercel-reusable-template-plan.md` before making structural
 - Redis uses `cache.NewRedis`.
 - Logging uses `lib/logs.NewLogger`.
 
-## Inngest (optional)
-- If included, keep the wrapper package generic: `lib/pkg/inngestclient`.
-- Inngest Vercel handler lives in `api/inngest/core.go`.
-
-## sqlc
-- sqlc config lives at `sqlc.yaml`; queries under `db/query/`.
-- Generated code should go into a stable package (documented in `sqlc.yaml`), and must not be edited by hand.
-- Schema source lives at `supabase/schema.sql` (Supabase convention), and is pulled/exported manually before running `sqlc generate`.
-
 ## Responses
 - Use `lib/pkg/render.ChiJSON` and `lib/pkg/render.ChiErr` as the default response helpers (unwrapped JSON).
 
-## Output expectations for scaffolding tasks
-When asked to “expose an existing package as a service”:
-- Prefer minimal changes to the existing package; wrap it with constructors and FX providers.
-- Create the minimal Vercel entrypoint + one example route (plus health if missing).
-- Update `vercel.json` rewrites and add a short README snippet with run steps.
+## Scope guardrails
+- Keep this repo free of business logic and third-party product integrations.
+- Do not add long-running server entrypoints such as `cmd/app/main.go`.
+- Do not add Inngest, sqlc, Supabase, Turso, or NotebookLM bootstrap to the template baseline.
+- Prefer a single example domain (`health`) and keep all other behavior as documentation, not prebuilt code.

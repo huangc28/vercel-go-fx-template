@@ -7,13 +7,12 @@ import (
 )
 
 type Config struct {
-	AppName   string `mapstructure:"app_name"`
-	AppEnv    string `mapstructure:"app_env"`
-	AppPort   int    `mapstructure:"app_port"`
-	LogLevel  string `mapstructure:"log_level"`
-	RedisURL  string `mapstructure:"redis_url"`
-	PGURL     string `mapstructure:"pg_url"`
-	InngestID string `mapstructure:"inngest_app_id"`
+	AppName  string `mapstructure:"app_name"`
+	AppEnv   string `mapstructure:"app_env"`
+	AppPort  int    `mapstructure:"app_port"`
+	LogLevel string `mapstructure:"log_level"`
+	RedisURL string `mapstructure:"redis_url"`
+	PGURL    string `mapstructure:"pg_url"`
 }
 
 func NewViper() *viper.Viper {
@@ -28,8 +27,6 @@ func NewViper() *viper.Viper {
 
 	v.SetDefault("redis_url", "")
 	v.SetDefault("pg_url", "")
-
-	v.SetDefault("inngest_app_id", "vercel-go-service")
 	return v
 }
 
